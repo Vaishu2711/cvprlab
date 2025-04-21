@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-# Sample Binary Image (1 = Object, 0 = Background)
 image = np.array([
 [0, 0, 0, 0, 0, 0, 0],
 [0, 1, 1, 1, 0, 0, 0],
@@ -8,10 +7,8 @@ image = np.array([
 [0, 1, 1, 1, 0, 0, 0],
 [0, 0, 0, 0, 0, 0, 0]
 ])
-# Structuring Elements (SE)
-SE_hit = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]]) # Foreground SE
-SE_miss = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]]) # Background SE
-# Function for Erosion using NumPy
+SE_hit = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]]) 
+SE_miss = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]]) 
 def erode(img, SE):
 rows, cols = img.shape
 se_rows, se_cols = SE.shape
@@ -22,12 +19,9 @@ region = img[i:i + se_rows, j:j + se_cols]
 if np.array_equal(region * SE, SE): # Exact pattern match
 output[i, j] = 1
 return output
-# Apply Erosion for Hit & Miss
 hit = erode(image, SE_hit) # Foreground erosion
-miss = erode(1 - image, SE_miss) # Background erosion
-# Hit-or-Miss Transformation
+miss = erode(1 - image, SE_miss) 
 hit_miss = hit & miss
-# Display Results
 titles = ["Original", "Eroded (Hit)", "Eroded (Miss)", "Hit-or-Miss Result"]
 images = [image, hit, miss, hit_miss]
 plt.figure(figsize=(10, 5))
