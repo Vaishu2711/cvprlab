@@ -1,0 +1,63 @@
+import numpy as np
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+# Load the digits dataset from sklearn
+digits = datasets.load_digits()
+# Features and labels
+X = digits.images
+y = digits.target
+# Flatten images to 1D vectors (for Naive Bayes)
+n_samples = len(X)
+X_flattened = X.reshape((n_samples, -1))
+# Split dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X_flattened, y, test_size=0.3,
+random_state=42)
+# Handwritten Naive Bayes Implementation
+class NaiveBayes:
+def fit(self, X, y, smoothing=1e-6):
+"""Train the Naive Bayes classifier."""
+self.classes = np.unique(y)
+self.class_means = {}
+self.class_stds = {}
+self.class_priors = {}
+# Calculate mean, std, and priors for each class
+for c in self.classes:
+X_c = X[y == c]
+self.class_means[c] = np.mean(X_c, axis=0)
+self.class_stds[c] = np.std(X_c, axis=0)
+self.class_priors[c] = X_c.shape[0] / float(X.shape[0])
+# Smoothing: Prevent std = 0 by adding a small constant
+self.class_stds[c] = np.maximum(self.class_stds[c], smoothing) # Avoid zero
+standard deviation
+def predict(self, X):
+"""Predict the class labels for the given data."""
+predictions = [self._predict_single(x) for x in X]
+return np.array(predictions)
+def _predict_single(self, x):
+"""Predict the class for a single data point."""
+posteriors = []
+2))
+for c in self.classes:
+prior = np.log(self.class_priors[c])
+likelihood = -0.5 * np.sum(np.log(2. * np.pi * self.class_stds[c] ** 2))
+likelihood -= 0.5 * np.sum(((x - self.class_means[c]) ** 2) / (self.class_stds[c] **
+posterior = prior + likelihood
+posteriors.append(posterior)
+return self.classes[np.argmax(posteriors)]
+# Instantiate and train the Naive Bayes classifier
+nb_handwritten = NaiveBayes()
+nb_handwritten.fit(X_train, y_train)
+# Make predictions on the test set
+y_pred_handwritten = nb_handwritten.predict(X_test)
+# Calculate accuracy
+accuracy_handwritten = np.mean(y_pred_handwritten == y_test)
+print(f"Hand-written Naive Bayes Accuracy: {accuracy_handwritten * 100:.2f}%")
+# Optional: Display some predictions with actual labels
+plt.figure(figsize=(10, 5))
+for i in range(10):
+plt.subplot(2, 5, i + 1)
+plt.imshow(X_test[i].reshape(8, 8), cmap='gray')
+plt.title(f"Pred: {y_pred_handwritten[i]} | Actual: {y_test[i]}")
+plt.axis('off')
+plt.show()
