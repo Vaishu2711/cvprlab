@@ -1,0 +1,46 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+
+# Load image and convert to grayscale
+img = cv2.imread('pca.jpg', cv2.IMREAD_GRAYSCALE)
+if img is None:
+    raise ValueError("Image not found!")
+
+# Normalize image (optional)
+img_norm = img / 255.0
+height, width = img.shape
+
+# Function to apply PCA and reconstruct image
+def pca_compress(img_data, num_components):
+    pca = PCA(n_components=num_components)
+    transformed = pca.fit_transform(img_data)
+    reconstructed = pca.inverse_transform(transformed)
+    return reconstructed
+
+# Flatten image into 2D array (for PCA)
+img_2d = img_norm
+
+# Apply PCA with different component values
+components_list = [10, 50, 500]
+reconstructed_images = [pca_compress(img_2d, k) for k in components_list]
+
+# Plot original and compressed versions
+plt.figure(figsize=(16, 8))
+
+# Original
+plt.subplot(1, len(components_list)+1, 1)
+plt.imshow(img_norm, cmap='gray')
+plt.title("Original")
+plt.axis('off')
+
+# Reconstructed images
+for i, rec in enumerate(reconstructed_images):
+    plt.subplot(1, len(components_list)+1, i+2)
+    plt.imshow(np.clip(rec, 0, 1), cmap='gray')
+    plt.title(f'PCA {components_list[i]} Components')
+    plt.axis('off')
+
+plt.tight_layout()
+plt.show()
